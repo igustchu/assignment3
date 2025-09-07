@@ -10,9 +10,13 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/EXRLoader.js"></script>
+
 
 <script>
 let model;
+
+
 
 // Scene & Camera
 const scene = new THREE.Scene();
@@ -63,10 +67,10 @@ lights.dir = new THREE.DirectionalLight(0xaaffff,1.2);
 lights.dir.position.set(25,30,25);
 lights.dir.castShadow = true;     // ✅ เปิดเงา
 // ปรับขอบเขตของกล้องเงาให้ใหญ่ขึ้น ไม่งั้นเงาอาจไม่ติด
-lights.dir.shadow.camera.left = -50;
-lights.dir.shadow.camera.right = 50;
-lights.dir.shadow.camera.top = 50;
-lights.dir.shadow.camera.bottom = -50;
+lights.dir.shadow.camera.left = -150;
+lights.dir.shadow.camera.right = 150;
+lights.dir.shadow.camera.top = 150;
+lights.dir.shadow.camera.bottom = -150;
 scene.add(lights.dir);
 lights.dir.marker = new THREE.Mesh(new THREE.SphereGeometry(1,16,16), new THREE.MeshBasicMaterial({color:0x00aaff}));
 scene.add(lights.dir.marker);
@@ -78,27 +82,44 @@ const gui = new lil.GUI();
 
 // Point
 const pointFolder = gui.addFolder('Point Light');
-pointFolder.add(lights.point.position,'x',-100,100).name('X');
-pointFolder.add(lights.point.position,'y',-100,100).name('Y');
-pointFolder.add(lights.point.position,'z',-100,100).name('Z');
+pointFolder.add(lights.point.position,'x',-180,180).name('X');
+pointFolder.add(lights.point.position,'y',-180,180).name('Y');
+pointFolder.add(lights.point.position,'z',-180,180).name('Z');
 pointFolder.add(lights.point,'intensity',0,20).name('Intensity');
 pointFolder.open();
 
 // Spot
 const spotFolder = gui.addFolder('Spot Light');
-spotFolder.add(lights.spot.position,'x',-100,100).name('X');
-spotFolder.add(lights.spot.position,'y',-100,100).name('Y');
-spotFolder.add(lights.spot.position,'z',-100,100).name('Z');
+spotFolder.add(lights.spot.position,'x',-180,180).name('X');
+spotFolder.add(lights.spot.position,'y',-180,180).name('Y');
+spotFolder.add(lights.spot.position,'z',-180,180).name('Z');
 spotFolder.add(lights.spot,'intensity',0,20).name('Intensity');
 spotFolder.open();
 
 // Directional
 const dirFolder = gui.addFolder('Directional Light');
-dirFolder.add(lights.dir.position,'x',-100,100).name('X');
-dirFolder.add(lights.dir.position,'y',-100,100).name('Y');
-dirFolder.add(lights.dir.position,'z',-100,100).name('Z');
+dirFolder.add(lights.dir.position,'x',-180,180).name('X');
+dirFolder.add(lights.dir.position,'y',-180,180).name('Y');
+dirFolder.add(lights.dir.position,'z',-180,180).name('Z');
 dirFolder.add(lights.dir,'intensity',0,20).name('Intensity');
 dirFolder.open();
+
+
+const exrLoader = new THREE.EXRLoader();
+exrLoader.load('hdri/stierberg_sunrise_1k.exr', function(texture){
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+
+    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+    scene.environment = envMap;
+    scene.background = envMap;
+
+    texture.dispose();
+    pmremGenerator.dispose();
+});
+
+
+
 
 // ==================
 // Load Models
@@ -107,7 +128,8 @@ const loader = new THREE.GLTFLoader();
 loader.load('model/scene.gltf', function(gltf){
   model = gltf.scene;
   model.scale.set(2,2,2);
-  model.position.set(-20,1,25);
+  model.position.set(-17,1,35);
+  model.rotation.y = Math.PI/2;
   model.traverse((child)=>{
     if(child.isMesh){
       child.castShadow = true;   // ✅ ให้โมเดลสร้างเงา
@@ -120,7 +142,7 @@ loader.load('model/scene.gltf', function(gltf){
 const loader2 = new THREE.GLTFLoader();
 loader2.load('plane/scene.gltf', function(gltf){
   const floor = gltf.scene;
-  floor.scale.set(6,6,6);
+  floor.scale.set(8,8,8);
   floor.position.set(0,-0.3,0);
   floor.traverse((child)=>{
     if(child.isMesh){
@@ -134,7 +156,7 @@ const loader3 = new THREE.GLTFLoader();
 loader3.load('spices/scene.gltf', function(gltf){
   const spices = gltf.scene;
   spices.scale.set(40,40,40);
-  spices.position.set(30,1,20);
+  spices.position.set(30,1,35);
   spices.rotation.y = -Math.PI/2;
   spices.traverse((child)=>{
     if(child.isMesh){
@@ -144,6 +166,38 @@ loader3.load('spices/scene.gltf', function(gltf){
   });
   scene.add(spices);
 });
+
+const loader4 = new THREE.GLTFLoader();
+loader4.load('table/scene.gltf', function(gltf){
+  const table = gltf.scene;
+  table.scale.set(7,7,7);
+  table.position.set(-70,0,30);
+  table.traverse((child)=>{
+    if(child.isMesh){
+      child.castShadow = true;   // ✅ วัตถุสร้างเงา
+      child.receiveShadow = true;
+    }
+  });
+  scene.add(table);
+});
+
+const loader5 = new THREE.GLTFLoader();
+loader5.load('box/scene.gltf', function(gltf){
+  const box = gltf.scene;
+  box.scale.set(7,7,7);
+  box.position.set(70,0,60);
+
+  box.traverse((child)=>{
+    if(child.isMesh){
+      child.castShadow = true;   // ✅ วัตถุสร้างเงา
+      child.receiveShadow = true;
+    }
+  });
+
+  scene.add(box);
+});
+
+
 
 
 function animate(){
