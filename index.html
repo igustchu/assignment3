@@ -47,7 +47,7 @@ scene.add(hemiLight);
 const lights = {};
 
 // PointLight
-lights.point = new THREE.PointLight(0xffffaa,1.2,100);
+lights.point = new THREE.PointLight(0xffffff,0,100);
 lights.point.position.set(0,20,20);
 lights.point.castShadow = true;   // ✅ เปิดเงา
 scene.add(lights.point);
@@ -55,7 +55,7 @@ lights.point.marker = new THREE.Mesh(new THREE.SphereGeometry(1,16,16), new THRE
 scene.add(lights.point.marker);
 
 // SpotLight (no target)
-lights.spot = new THREE.SpotLight(0xffaaaa,2,50,Math.PI/6,0.3,1);
+lights.spot = new THREE.SpotLight(0xffffff,0,50,Math.PI/6,0.3,1);
 lights.spot.position.set(0,25,25);
 lights.spot.castShadow = true;    // ✅ เปิดเงา
 scene.add(lights.spot);
@@ -63,7 +63,7 @@ lights.spot.marker = new THREE.Mesh(new THREE.SphereGeometry(1,16,16), new THREE
 scene.add(lights.spot.marker);
 
 // DirectionalLight (no target)
-lights.dir = new THREE.DirectionalLight(0xaaffff,1.2);
+lights.dir = new THREE.DirectionalLight(0xffffff,1.2);
 lights.dir.position.set(25,30,25);
 lights.dir.castShadow = true;     // ✅ เปิดเงา
 // ปรับขอบเขตของกล้องเงาให้ใหญ่ขึ้น ไม่งั้นเงาอาจไม่ติด
